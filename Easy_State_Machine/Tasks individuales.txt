@@ -1,0 +1,4 @@
+-Window Favoritos(Add Remove Asset, Open Favortie Asset)(Levy)
+-Window Nodos(Display Basico, Agregar sacar y unir nodos)(Gonzalo)
+-Crear Scriptable State Machine(No es necesario datos por ahora)(Joshua)
+-Component StateMachine (Variable de Scriptable, Si es null boton Create)(Rafael)
