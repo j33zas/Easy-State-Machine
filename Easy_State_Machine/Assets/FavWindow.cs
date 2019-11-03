@@ -5,52 +5,101 @@ using UnityEditor;
 
 public class FavWindow : EditorWindow
 {
-    List<Object> favs = new List<Object>();
+    FavList currentList;
 
-    Object currentOBJ;
+    #region Searchbar
+    string _currentsearch;
 
-    Object _lastSearch;
+    string _searchQuery;
 
-    List<Object> searchedItems = new List<Object>();
+    List<Object> _searchResults = new List<Object>();
+    #endregion
 
     [MenuItem("Unity+/Favourites")]
     public static void OpenWindow()
     {
-        FavWindow _me = (FavWindow)GetWindow(typeof(FavWindow));
+        var _me = GetWindow<FavWindow>();
         _me.Show();
     }
 
-    [MenuItem("Assets/Add to favourites")]
-    public static void OpenWindow(object toadd = null)
+    private void OnEnable()
     {
-        //tome el item sobre el que se hizo click
-        FavWindow _me = (FavWindow)GetWindow(typeof(FavWindow));
-        _me.Show();
+        if (currentList == null)
+            if (AssetDatabase.FindAssets("Your_favourites") != null)
+                //currentList = (FavList)AssetDatabase.LoadAssetAtPath("Assets/Unity+/Favourites/List/", typeof(FavList));
     }
     private void OnGUI()
     {
-        currentOBJ = EditorGUILayout.ObjectField(currentOBJ, typeof(Object), true);
+        if (AssetDatabase.FindAssets("Your_favourites").Length == 0)
+        {
+            if (GUILayout.Button("Create Favourites"))
+            {
+                currentList = ScriptableObjManager.CreateScriptable<FavList>("Assets/Unity+/Favourites/List/", "Your_favourites");
+                currentList.favs = new List<Object>();
+            }
+            return;
+        }
 
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Add"))
-            if (currentOBJ != null)
-                if(!favs.Contains(currentOBJ))
-                    favs.Add(currentOBJ);
-                else
-                    EditorGUILayout.HelpBox("Selected object is already a fovourite!!! D: *dies*", MessageType.Error);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.EndHorizontal();
-
-        for (int i = 0; i < favs.Count - 1; i++)
+        SearchBar();
+        foreach (var item in currentList.favs)
         {
             EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Open"))
+                AssetDatabase.OpenAsset(item);
+            GUILayout.Space(5);
 
-            EditorGUI.TextArea(GUILayoutUtility.GetLastRect(), favs[i].name);
-            EditorGUILayout.Space();
-            EditorGUI.DrawPreviewTexture(GUILayoutUtility.GetRect(30,30), AssetPreview.GetAssetPreview(searchedItems[i]));
+            if (GUILayout.Button("Remove"))
+                currentList.favs.Remove(item);
+            GUILayout.Space(5);
+
+            GUILayout.TextField(item.name);
+            GUILayout.Space(5);
+
+
 
             EditorGUILayout.EndHorizontal();
+        }
+
+    }
+    void SearchBar()
+    {
+        EditorGUILayout.LabelField("search");
+        EditorGUILayout.BeginHorizontal();
+        _searchQuery = EditorGUILayout.TextField(_searchQuery);
+        if (GUILayout.Button("Search", GUILayout.Width(50), GUILayout.Height(18)) || Input.GetKeyDown(KeyCode.Return))
+        {
+            _searchResults.Clear();
+            string[] paths = AssetDatabase.FindAssets(_searchQuery);
+            for (int i = 0; i < paths.Length - 1; i++)
+            {
+
+                paths[i] = AssetDatabase.GUIDToAssetPath(paths[i]);
+
+                Object _current = AssetDatabase.LoadAssetAtPath(paths[i], typeof(Object));
+
+                if (_current != null && !currentList.favs.Contains(_current))
+                    _searchResults.Add(_current);
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+        if (_searchResults.Count > 0)
+        {
+            for (int i = 0; i < _searchResults.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal();
+
+                EditorGUILayout.LabelField(_searchResults[i].name);
+
+                GUI.DrawTexture(GUILayoutUtility.GetRect(30, 30), AssetPreview.GetAssetPreview(_searchResults[i]), ScaleMode.ScaleToFit);
+
+                if (GUILayout.Button("add"))
+                {
+                    _searchResults.Remove(_searchResults[i]);
+
+                    currentList.favs.Add(_searchResults[i]);
+                }
+                EditorGUILayout.EndHorizontal();
+            }
         }
     }
 }

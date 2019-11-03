@@ -60,7 +60,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\FavList.cs" />
     <Compile Include="Assets\FavWindow.cs" />
+    <Compile Include="Assets\ScriptableObjManager.cs" />
     <Compile Include="Assets\SMEditor.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/Mati-Levy/Downloads/Easy-State-Machine/Easy_State_Machine/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
