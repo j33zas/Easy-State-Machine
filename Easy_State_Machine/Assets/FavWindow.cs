@@ -24,9 +24,11 @@ public class FavWindow : EditorWindow
 
     private void OnEnable()
     {
+        /*
         if (currentList == null)
             if (AssetDatabase.FindAssets("Your_favourites") != null)
-                //currentList = (FavList)AssetDatabase.LoadAssetAtPath("Assets/Unity+/Favourites/List/", typeof(FavList));
+                currentList = (FavList)AssetDatabase.LoadAssetAtPath("Assets/Unity+/Favourites/List/", typeof(FavList));
+        */
     }
     private void OnGUI()
     {
