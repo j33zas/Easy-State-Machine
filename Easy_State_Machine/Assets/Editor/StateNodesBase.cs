@@ -22,7 +22,7 @@ public class StateNodesBase : EditorWindow
 
     private Node _selectedNode;
 
-    [MenuItem("EasyStateMachine/lmao")]
+    [MenuItem("Unity+/EasyStateMachine/NodeEditor")]
     public static void OpenWindow()
     {
         var mySelf = GetWindow<StateNodesBase>();
@@ -137,11 +137,11 @@ public class StateNodesBase : EditorWindow
 
         var node = _allNodes[id];
 
-        EditorGUILayout.TextArea(node.title, wrappedText, GUILayout.Height(20));
+        node.title = EditorGUILayout.TextArea(node.title, wrappedText, GUILayout.Height(20));
 
         EditorGUILayout.LabelField("DESCRIPTION");
 
-        EditorGUILayout.TextArea(node.description, wrappedText, GUILayout.Height(10));
+        node.description = EditorGUILayout.TextArea(node.description, wrappedText, GUILayout.Height(15));
 
         if (!_panning)
         {
