@@ -22,6 +22,10 @@ public class StateNodesBase : EditorWindow
 
     private Node _selectedNode;
 
+    private bool _selectedSomething = false;
+
+    Vector2 screenPosPos;
+
     [MenuItem("Unity+/EasyStateMachine/NodeEditor")]
     public static void OpenWindow()
     {
@@ -67,11 +71,10 @@ public class StateNodesBase : EditorWindow
         graphRect.y = panRect.y;
         GUI.BeginGroup(graphRect);
 
-        for (int i = 0; i < position.width; i += 10)
+        for (int i = 0; i < _allNodes.Count; i++)
         {
-            Vector2 p1 = new Vector2(i, 0);
-            Vector2 p2 = new Vector2(i, position.height - toolBarHeight);
-            Handles.DrawLine(p1, p2);
+            foreach (var c in _allNodes[i].connected)
+                Handles.DrawLine(new Vector2(_allNodes[i].myRect.position.x + _allNodes[i].myRect.width / 2f, _allNodes[i].myRect.position.y + _allNodes[i].myRect.height / 2f), new Vector2(c.myRect.position.x + c.myRect.width / 2f, c.myRect.position.y + c.myRect.height / 2f));
         }
 
         BeginWindows();
@@ -79,10 +82,10 @@ public class StateNodesBase : EditorWindow
         var oldColor = GUI.backgroundColor;
         for (int i = 0; i < _allNodes.Count; i++)
         {
-            if (_allNodes[i] == _selectedNode)
-                GUI.backgroundColor = Color.green;
-
-            _allNodes[i].myRect = GUI.Window(i, _allNodes[i].myRect, DrawNode, _allNodes[i].myName);
+            if (_allNodes[i] == _selectedNode)         
+                GUI.backgroundColor = Color.white;                                 
+                
+            _allNodes[i].myRect = GUI.Window(i, _allNodes[i].myRect, DrawNode, _allNodes[i].title);
             GUI.backgroundColor = oldColor;
         }
 
@@ -98,7 +101,7 @@ public class StateNodesBase : EditorWindow
 
         if (current.button == 1 && current.type == EventType.MouseDown)
         {
-            MainFuncion();
+            MenuOptions();
         }
 
         foreach (var node in _allNodes)
@@ -107,6 +110,7 @@ public class StateNodesBase : EditorWindow
         }
 
         var oldSelected = _selectedNode;
+
         if (current.button == 0 && current.type == EventType.MouseDown)
         {
             foreach (var node in _allNodes)
@@ -114,20 +118,26 @@ public class StateNodesBase : EditorWindow
                 if (node.isOver)
                 {
                     _selectedNode = node;
+                    _selectedSomething = true;
                     break;
                 }
             }
             if (_selectedNode == oldSelected)
+            {
                 _selectedNode = null;
+                _selectedSomething = false;
+            }        
             else
                 Repaint();
         }
+
+        screenPosPos = current.mousePosition;
     }
 
-    private void CreateNode(Vector2 pos)
+    private void CreateNode(Event current)
     {
-        pos = new Vector2(0, 0);
-        var newNode = new Node(new Rect(pos.x, pos.y, 100, 100));
+        var newNode = new Node(new Rect(screenPosPos.x -20, screenPosPos.y -200, 250, 150));
+
         _allNodes.Add(newNode);
     }
 
@@ -142,6 +152,23 @@ public class StateNodesBase : EditorWindow
         EditorGUILayout.LabelField("DESCRIPTION");
 
         node.description = EditorGUILayout.TextArea(node.description, wrappedText, GUILayout.Height(15));
+
+        Space(2);
+
+        var n = EditorGUILayout.TextField("Connect to:", "");
+        if (n != "" && n != " ")
+        {
+            for (int i = 0; i < _allNodes.Count; i++)
+            {
+                if (_allNodes[i].title == n)
+                    _allNodes[id].connected.Add(_allNodes[i]);
+                else if
+                    (_allNodes[i].title == n)
+                    _allNodes[id].connected.Remove(_allNodes[i]);
+            }
+            Repaint();
+        }
+
 
         if (!_panning)
         {
@@ -159,7 +186,29 @@ public class StateNodesBase : EditorWindow
 
     public void MainFuncion()
     {
-        CreateNode(new Vector2(250, 250));
+        CreateNode(Event.current);
+    }
+
+    public void DeleteNode()
+    {
+        Debug.Log("dou");
+        _allNodes.Remove(_selectedNode);
+        DestroyImmediate(_selectedNode);
+        Repaint();
+    }
+
+    public void MenuOptions()
+    {
+        var menuVar = new GenericMenu();
+        menuVar.AddItem(new GUIContent("Add node"), false, MainFuncion);
+
+        if (_selectedSomething == false)
+            menuVar.AddDisabledItem(new GUIContent("Delete node"));        
+        else
+            menuVar.AddItem(new GUIContent("Delete node"), false, DeleteNode);
+
+
+        menuVar.ShowAsContext();
     }
 
     private void Space(int cant)
