@@ -15,20 +15,27 @@ public class FavWindow : EditorWindow
     List<Object> _searchResults = new List<Object>();
     #endregion
 
-    [MenuItem("Unity+/Favourites")]
+    [MenuItem("Unity+/Favourites &f")]
     public static void OpenWindow()
     {
         var _me = GetWindow<FavWindow>();
         _me.Show();
     }
 
+    [MenuItem("Assets/Add to favourites")]
+    public static void AddToFavs()
+    {
+        Debug.Log("Conseguir objecto y agregar a currentList.favs");
+        
+    }
+
     private void OnEnable()
     {
-        /*
-        if (currentList == null)
-            if (AssetDatabase.FindAssets("Your_favourites") != null)
-                currentList = (FavList)AssetDatabase.LoadAssetAtPath("Assets/Unity+/Favourites/List/", typeof(FavList));
-        */
+        string[] test = new string[] { "Assets/Unity+/Favourites/List" };
+        if (currentList == null && AssetDatabase.FindAssets("Your_favourites", test).Length > 0)
+        {
+            currentList = (FavList)AssetDatabase.LoadAssetAtPath(test[0] + "/Your_favourites", typeof(FavList));
+        }
     }
     private void OnGUI()
     {
@@ -41,28 +48,14 @@ public class FavWindow : EditorWindow
             }
             return;
         }
+        if (!currentList)
+            currentList = (FavList)EditorGUILayout.ObjectField(currentList, typeof(FavList), false);
 
         SearchBar();
-        foreach (var item in currentList.favs)
-        {
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Open"))
-                AssetDatabase.OpenAsset(item);
-            GUILayout.Space(5);
 
-            if (GUILayout.Button("Remove"))
-                currentList.favs.Remove(item);
-            GUILayout.Space(5);
-
-            GUILayout.TextField(item.name);
-            GUILayout.Space(5);
-
-
-
-            EditorGUILayout.EndHorizontal();
-        }
-
+        DrawFavourites();
     }
+
     void SearchBar()
     {
         EditorGUILayout.LabelField("search");
@@ -72,15 +65,18 @@ public class FavWindow : EditorWindow
         {
             _searchResults.Clear();
             string[] paths = AssetDatabase.FindAssets(_searchQuery);
-            for (int i = 0; i < paths.Length - 1; i++)
+            if(paths.Length>0)
             {
+                for (int i = 0; i < paths.Length - 1; i++)
+                {
 
-                paths[i] = AssetDatabase.GUIDToAssetPath(paths[i]);
+                    paths[i] = AssetDatabase.GUIDToAssetPath(paths[i]);
 
-                Object _current = AssetDatabase.LoadAssetAtPath(paths[i], typeof(Object));
+                    Object _current = AssetDatabase.LoadAssetAtPath(paths[i], typeof(Object));
 
-                if (_current != null && !currentList.favs.Contains(_current))
-                    _searchResults.Add(_current);
+                    if (_current != null && !currentList.favs.Contains(_current))
+                        _searchResults.Add(_current);
+                }
             }
         }
         EditorGUILayout.EndHorizontal();
@@ -96,10 +92,36 @@ public class FavWindow : EditorWindow
 
                 if (GUILayout.Button("add"))
                 {
-                    _searchResults.Remove(_searchResults[i]);
-
                     currentList.favs.Add(_searchResults[i]);
+
+                    _searchResults.Remove(_searchResults[i]);
                 }
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+    }
+
+    void DrawFavourites()
+    {
+        if (currentList.favs.Count >= 0)
+        {
+            foreach (var item in currentList.favs)
+            {
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Open", GUILayout.Width(50), GUILayout.Height(20)))
+                    AssetDatabase.OpenAsset(item);
+                GUILayout.Space(5);
+
+                if (GUILayout.Button("Remove", GUILayout.Width(60), GUILayout.Height(20)))
+                {
+                    currentList.favs.Remove(item);
+                    Repaint();
+                }
+                GUILayout.Space(5);
+
+                GUILayout.Label(item.name);
+                GUILayout.Space(5);
+
                 EditorGUILayout.EndHorizontal();
             }
         }
