@@ -55,10 +55,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\FavList.cs" />
     <Compile Include="Assets\FavWindow.cs" />
+    <Compile Include="Assets\ScriptableObjManager.cs" />
     <Compile Include="Assets\SMEditor.cs" />
-    <Compile Include="Assets\State.cs" />
-    <Compile Include="Assets\StateMachineScriptable.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>D:/GITHU/Easy-State-Machine/Easy_State_Machine/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
