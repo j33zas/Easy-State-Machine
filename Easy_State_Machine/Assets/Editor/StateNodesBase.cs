@@ -26,10 +26,14 @@ public class StateNodesBase : EditorWindow
 
     Vector2 screenPosPos;
 
+    StateMachineScriptable _myMachine;
+
     [MenuItem("Unity+/EasyStateMachine/NodeEditor")]
-    public static void OpenWindow()
+    public static void OpenWindow(StateMachineScriptable newMachine)
     {
         var mySelf = GetWindow<StateNodesBase>();
+
+        mySelf._myMachine = newMachine;
 
         mySelf.graphRect = new Rect(0, toolBarHeight, 1000, 1000);
         mySelf.panRect = new Vector2(0, toolBarHeight);
@@ -45,6 +49,7 @@ public class StateNodesBase : EditorWindow
         mySelf.wrappedText = new GUIStyle(EditorStyles.textField);
         mySelf.wrappedText.wordWrap = true;
         mySelf.Show();
+
     }
 
     private void OnGUI()
@@ -53,7 +58,7 @@ public class StateNodesBase : EditorWindow
 
         EditorGUILayout.BeginVertical(GUILayout.Height(500));
 
-        EditorGUILayout.LabelField("STATES EDITOR", myStyle);
+        EditorGUILayout.LabelField("STATEMACHINE EDITOR: " + _myMachine.name, myStyle);
 
         Space(2);
 
