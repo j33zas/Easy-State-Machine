@@ -7,6 +7,10 @@ public class FavWindow : EditorWindow
 {
     FavList currentList;
 
+    Color defaultColor;
+
+    Vector2 _scrollPos = new Vector2();
+
     #region Searchbar
     string _currentsearch;
 
@@ -33,9 +37,8 @@ public class FavWindow : EditorWindow
     {
         string[] test = new string[] { "Assets/Unity+/Favourites/List" };
         if (currentList == null && AssetDatabase.FindAssets("Your_favourites", test).Length > 0)
-        {
-            currentList = (FavList)AssetDatabase.LoadAssetAtPath(test[0] + "/Your_favourites", typeof(FavList));
-        }
+            currentList = (FavList)AssetDatabase.LoadAssetAtPath("Assets/Unity+/Favourites/List/Your_favourites.Asset", typeof(FavList));
+        defaultColor = GUI.backgroundColor;
     }
     private void OnGUI()
     {
@@ -45,13 +48,20 @@ public class FavWindow : EditorWindow
             {
                 currentList = ScriptableObjManager.CreateScriptable<FavList>("Assets/Unity+/Favourites/List/", "Your_favourites");
                 currentList.favs = new List<Object>();
+                
             }
             return;
         }
         if (!currentList)
             currentList = (FavList)EditorGUILayout.ObjectField(currentList, typeof(FavList), false);
 
+        //if (_searchResults.Count > 5)
+        //    _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, true, true, GUILayout.Height(100), GUILayout.Width(10));
+
         SearchBar();
+
+        //if (_searchResults.Count > 5)
+        //    EditorGUILayout.EndScrollView();
 
         DrawFavourites();
     }
@@ -82,48 +92,55 @@ public class FavWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
         if (_searchResults.Count > 0)
         {
+            EditorGUI.DrawRect(new Rect() , Color.black);
             for (int i = 0; i < _searchResults.Count; i++)
             {
                 EditorGUILayout.BeginHorizontal();
 
                 EditorGUILayout.LabelField(_searchResults[i].name);
 
-                GUI.DrawTexture(GUILayoutUtility.GetRect(30, 30), AssetPreview.GetAssetPreview(_searchResults[i]), ScaleMode.ScaleToFit);
+                GUI.DrawTexture(GUILayoutUtility.GetRect(30, 30), AssetPreview.GetMiniTypeThumbnail(_searchResults[i].GetType()), ScaleMode.ScaleToFit);
 
                 if (GUILayout.Button("add"))
                 {
                     currentList.favs.Add(_searchResults[i]);
 
                     _searchResults.Remove(_searchResults[i]);
+
+                    Repaint();
                 }
                 EditorGUILayout.EndHorizontal();
             }
         }
+        GUI.backgroundColor = defaultColor;
     }
 
     void DrawFavourites()
     {
         if (currentList.favs.Count >= 0)
         {
-            foreach (var item in currentList.favs)
+            for (int i = 0; i < currentList.favs.Count; i++)
             {
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("Open", GUILayout.Width(50), GUILayout.Height(20)))
-                    AssetDatabase.OpenAsset(item);
+                if (GUILayout.Button("O", GUILayout.Width(25), GUILayout.Height(25)))
+                    AssetDatabase.OpenAsset(currentList.favs[i]);
                 GUILayout.Space(5);
 
-                if (GUILayout.Button("Remove", GUILayout.Width(60), GUILayout.Height(20)))
+                if (GUILayout.Button("X", GUILayout.Width(25), GUILayout.Height(25)))
                 {
-                    currentList.favs.Remove(item);
+                    currentList.favs.Remove(currentList.favs[i]);
                     Repaint();
                 }
                 GUILayout.Space(5);
 
-                GUILayout.Label(item.name);
+                GUI.DrawTexture(GUILayoutUtility.GetRect(25, 25), AssetPreview.GetMiniTypeThumbnail(currentList.favs[i].GetType()), ScaleMode.ScaleToFit);
+
+                GUILayout.Label(currentList.favs[i].name);
                 GUILayout.Space(5);
 
                 EditorGUILayout.EndHorizontal();
             }
         }
     }
+
 }
