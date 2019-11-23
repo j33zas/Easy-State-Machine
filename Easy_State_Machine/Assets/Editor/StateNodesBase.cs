@@ -22,7 +22,9 @@ public class StateNodesBase : EditorWindow
 
     private Node _selectedNode;
 
-    private bool _selectedSomething = false;
+    private Node _nodeOver;
+
+    private Node _targetNode;
 
     Vector2 screenPosPos;
 
@@ -88,7 +90,9 @@ public class StateNodesBase : EditorWindow
         for (int i = 0; i < _allNodes.Count; i++)
         {
             if (_allNodes[i] == _selectedNode)         
-                GUI.backgroundColor = Color.white;                                 
+                GUI.backgroundColor = Color.white;
+            if (_allNodes[i] == _targetNode)
+                GUI.backgroundColor = Color.red;
                 
             _allNodes[i].myRect = GUI.Window(i, _allNodes[i].myRect, DrawNode, _allNodes[i].title);
             GUI.backgroundColor = oldColor;
@@ -104,34 +108,31 @@ public class StateNodesBase : EditorWindow
         if ((!graphRect.Contains(current.mousePosition)) && !(focusedWindow == this || mouseOverWindow == this))
             return;
 
-        if (current.button == 1 && current.type == EventType.MouseDown)
-        {
-            MenuOptions();
-        }
-
+        _nodeOver = null;
         foreach (var node in _allNodes)
         {
             node.SetMouseOver(current, panRect);
+            if (node.isOver)
+            {
+                _nodeOver = node;
+                break;
+            }
+        }
+
+        if (current.button == 1 && current.type == EventType.MouseDown)
+        {
+            MenuOptions(_nodeOver);
         }
 
         var oldSelected = _selectedNode;
 
         if (current.button == 0 && current.type == EventType.MouseDown)
         {
-            foreach (var node in _allNodes)
-            {
-                if (node.isOver)
-                {
-                    _selectedNode = node;
-                    _selectedSomething = true;
-                    break;
-                }
-            }
+            _selectedNode = _nodeOver;
             if (_selectedNode == oldSelected)
             {
                 _selectedNode = null;
-                _selectedSomething = false;
-            }        
+            }
             else
                 Repaint();
         }
@@ -141,7 +142,7 @@ public class StateNodesBase : EditorWindow
 
     private void CreateNode(Event current)
     {
-        var newNode = new Node(new Rect(screenPosPos.x -20, screenPosPos.y -200, 250, 150));
+        var newNode = new Node(new Rect(screenPosPos.x -20, screenPosPos.y -200, 140, 130));
 
         _allNodes.Add(newNode);
     }
@@ -159,21 +160,6 @@ public class StateNodesBase : EditorWindow
         node.description = EditorGUILayout.TextArea(node.description, wrappedText, GUILayout.Height(15));
 
         Space(2);
-
-        var n = EditorGUILayout.TextField("Connect to:", "");
-        if (n != "" && n != " ")
-        {
-            for (int i = 0; i < _allNodes.Count; i++)
-            {
-                if (_allNodes[i].title == n)
-                    _allNodes[id].connected.Add(_allNodes[i]);
-                else if
-                    (_allNodes[i].title == n)
-                    _allNodes[id].connected.Remove(_allNodes[i]);
-            }
-            Repaint();
-        }
-
 
         if (!_panning)
         {
@@ -194,25 +180,57 @@ public class StateNodesBase : EditorWindow
         CreateNode(Event.current);
     }
 
+    public void SetTarget()
+    {
+        _targetNode = null;
+        _targetNode = _nodeOver;
+    }
+
     public void DeleteNode()
     {
-        Debug.Log("dou");
-        _allNodes.Remove(_selectedNode);
-        DestroyImmediate(_selectedNode);
+        _allNodes.Remove(_nodeOver);
         Repaint();
     }
 
-    public void MenuOptions()
+    public void Connect()
+    {
+        _nodeOver.connected.Add(_targetNode);
+    }
+
+    public void Disconnect()
+    {
+        _nodeOver.connected.Remove(_targetNode);
+    }
+
+    public void MenuOptions(Node nodeOver)
     {
         var menuVar = new GenericMenu();
-        menuVar.AddItem(new GUIContent("Add node"), false, MainFuncion);
+        menuVar.AddItem(new GUIContent("Add node"), false, MainFuncion);       
 
-        if (_selectedSomething == false)
-            menuVar.AddDisabledItem(new GUIContent("Delete node"));        
-        else
+        if (nodeOver == null)
+        {
+            menuVar.AddDisabledItem(new GUIContent("Delete node"));
+            menuVar.AddDisabledItem(new GUIContent("Connect"));
+            menuVar.AddDisabledItem(new GUIContent("Disconnect"));
+            menuVar.AddDisabledItem(new GUIContent("Set as target"));
+        }
+
+        else if (nodeOver != null && _targetNode == null)
+        {
             menuVar.AddItem(new GUIContent("Delete node"), false, DeleteNode);
+            menuVar.AddDisabledItem(new GUIContent("Connect"));
+            menuVar.AddDisabledItem(new GUIContent("Disconnect"));
+            menuVar.AddItem(new GUIContent("Set as target"), false, SetTarget);
+        }
 
-
+        else 
+        {
+            menuVar.AddItem(new GUIContent("Delete node"), false, DeleteNode);
+            menuVar.AddItem(new GUIContent("Connect"), false, Connect);
+            menuVar.AddItem(new GUIContent("Disconnect"), false, Disconnect);
+            menuVar.AddItem(new GUIContent("Set new target"), false, SetTarget);
+        }
+            
         menuVar.ShowAsContext();
     }
 
