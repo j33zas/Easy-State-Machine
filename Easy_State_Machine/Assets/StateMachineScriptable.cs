@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-[CreateAssetMenu(fileName = "NewStateMachine", menuName = "Easy State Machine/New State Machine", order = 1)]
+//[CreateAssetMenu(fileName = "NewStateMachine", menuName = "Easy State Machine/New State Machine", order = 1)]
 public class StateMachineScriptable : ScriptableObject
 {
     public State _currentState;

@@ -26,6 +26,8 @@ public class StateNodesBase : EditorWindow
 
     private Node _targetNode;
 
+    Node _currentNode;
+
     Vector2 screenPosPos;
 
     StateMachineScriptable _myMachine;
@@ -52,6 +54,15 @@ public class StateNodesBase : EditorWindow
         mySelf.wrappedText.wordWrap = true;
         mySelf.Show();
 
+
+        if (mySelf._myMachine._states.Count != 0 && mySelf._myMachine._states != null)
+        {
+            //mySelf._allNodes = mySelf._myMachine._states;
+            for (int i = 0; i < mySelf._myMachine._states.Count; i++)
+            {
+                mySelf.CreateNode(Event.current);
+            }
+        }
     }
 
     private void OnGUI()
@@ -143,7 +154,8 @@ public class StateNodesBase : EditorWindow
     private void CreateNode(Event current)
     {
         var newNode = new Node(new Rect(screenPosPos.x -20, screenPosPos.y -200, 140, 130));
-
+        //object[] tempStates = _currentNode.GetAllDerivedTypes(typeof(State));
+        //_myMachine._states.Add((State)tempStates[_currentNode.indexTest]);
         _allNodes.Add(newNode);
     }
 
@@ -151,13 +163,13 @@ public class StateNodesBase : EditorWindow
     {
         EditorGUILayout.LabelField("STATE");
 
-        var node = _allNodes[id];
+        _currentNode = _allNodes[id];
 
-        node.title = EditorGUILayout.TextArea(node.title, wrappedText, GUILayout.Height(20));
+        _currentNode.indexTest = EditorGUILayout.Popup(_currentNode.indexTest, _currentNode.StateNames());
 
         EditorGUILayout.LabelField("DESCRIPTION");
 
-        node.description = EditorGUILayout.TextArea(node.description, wrappedText, GUILayout.Height(15));
+        _currentNode.description = EditorGUILayout.TextArea(_currentNode.description, wrappedText, GUILayout.Height(15));
 
         Space(2);
 
@@ -165,13 +177,13 @@ public class StateNodesBase : EditorWindow
         {
             GUI.DragWindow();
 
-            if (!node.isOver) return;
+            if (!_currentNode.isOver) return;
 
-            if (node.myRect.x < 0)
-                node.myRect.x = 0;
+            if (_currentNode.myRect.x < 0)
+                _currentNode.myRect.x = 0;
 
-            if (node.myRect.y < toolBarHeight - panRect.y)
-                node.myRect.y = toolBarHeight - panRect.y;
+            if (_currentNode.myRect.y < toolBarHeight - panRect.y)
+                _currentNode.myRect.y = toolBarHeight - panRect.y;
         }
     }
 

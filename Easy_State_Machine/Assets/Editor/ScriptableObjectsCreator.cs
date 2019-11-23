@@ -9,9 +9,7 @@ public class ScriptableObjectsCreator : EditorWindow
 
     bool _SMexists = false;
 
-    string test;
-
-    [MenuItem("Unity+/EasyStateMachine/Create/New StateMachine")]
+    //[MenuItem("Unity+/EasyStateMachine/Create/New StateMachine")]
     public static void CreateStateMachine()
     {
         var window = GetWindow<ScriptableObjectsCreator>();
@@ -22,11 +20,6 @@ public class ScriptableObjectsCreator : EditorWindow
     {
         EditorGUILayout.Space();
         _name = EditorGUILayout.TextField("Name: StateMachine_", _name);
-        if(_name != test)
-        {
-            test = _name;
-            Repaint();
-        }
         EditorGUILayout.Space();
 
         var _allSM = AssetDatabase.LoadAllAssetsAtPath("Assets/StateMachineS/");
