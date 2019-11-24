@@ -63,8 +63,6 @@ public class Node
         return result.ToArray();
     }
 
-    //Y en algún otro lado del código(al abrir la ventana podrían guardar esto así no lo buscan cada vez, consume pero no taaaanto) :
-
     public string[] StateNames()
     {
         var types = GetAllDerivedTypes(typeof(State));
