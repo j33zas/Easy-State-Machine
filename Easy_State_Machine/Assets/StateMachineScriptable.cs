@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
-//[CreateAssetMenu(fileName = "NewStateMachine", menuName = "Easy State Machine/New State Machine", order = 1)]
 public class StateMachineScriptable : ScriptableObject
 {
     public State _currentState;
     public List<State> _states = new List<State>();
+    //public List<Node> nodes = new List<Node>();
 
     public void Update()
     {
@@ -50,4 +49,5 @@ public class StateMachineScriptable : ScriptableObject
 
         return -1;
     }
+
 }

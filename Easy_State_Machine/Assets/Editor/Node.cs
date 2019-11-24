@@ -5,13 +5,13 @@ using UnityEngine;
 public class Node
 {
     public int indexTest;
-
     public Rect myRect;
     public int rendomInt;
     public string title;
     public string description;
 
     public List<Node> connected;
+    public System.Type myState;
 
     public bool isOver;
 
@@ -55,7 +55,9 @@ public class Node
             foreach (var type in types)
             {
                 if (type.IsSubclassOf(aType))
+                {
                     result.Add(type);
+                }
             }
         }
         return result.ToArray();

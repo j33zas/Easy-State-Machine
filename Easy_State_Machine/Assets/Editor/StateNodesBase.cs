@@ -31,6 +31,7 @@ public class StateNodesBase : EditorWindow
     Vector2 screenPosPos;
 
     StateMachineScriptable _myMachine;
+    NodeObject _nodeController;
 
     [MenuItem("Unity+/EasyStateMachine/NodeEditor")]
     public static void OpenWindow(StateMachineScriptable newMachine)
@@ -38,6 +39,7 @@ public class StateNodesBase : EditorWindow
         var mySelf = GetWindow<StateNodesBase>();
 
         mySelf._myMachine = newMachine;
+        mySelf._nodeController = Resources.Load<NodeObject>("Nodes/NodeController");
 
         mySelf.graphRect = new Rect(0, toolBarHeight, 1000, 1000);
         mySelf.panRect = new Vector2(0, toolBarHeight);
@@ -55,14 +57,14 @@ public class StateNodesBase : EditorWindow
         mySelf.Show();
 
 
-        if (mySelf._myMachine._states.Count != 0 && mySelf._myMachine._states != null)
-        {
-            //mySelf._allNodes = mySelf._myMachine._states;
-            for (int i = 0; i < mySelf._myMachine._states.Count; i++)
-            {
-                mySelf.CreateNode(Event.current);
-            }
-        }
+        //if (mySelf._myMachine._states.Count != 0 && mySelf._myMachine._states != null)
+        //{
+        //    //mySelf._allNodes = mySelf._myMachine._states;
+        //    for (int i = 0; i < mySelf._myMachine._states.Count; i++)
+        //    {
+        //        mySelf.CreateNode(Event.current);
+        //    }
+        //}
     }
 
     private void OnGUI()
@@ -154,8 +156,7 @@ public class StateNodesBase : EditorWindow
     private void CreateNode(Event current)
     {
         var newNode = new Node(new Rect(screenPosPos.x -20, screenPosPos.y -200, 140, 130));
-        //object[] tempStates = _currentNode.GetAllDerivedTypes(typeof(State));
-        //_myMachine._states.Add((State)tempStates[_currentNode.indexTest]);
+        newNode.myState = newNode.GetAllDerivedTypes(typeof(State))[newNode.indexTest];
         _allNodes.Add(newNode);
     }
 
