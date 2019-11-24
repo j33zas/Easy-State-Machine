@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class StateMachineScriptable : ScriptableObject
-{
+{    
     public State _currentState;
     public List<State> _states = new List<State>();
-    //public List<Node> nodes = new List<Node>();
+    public List<Node> nodes = new List<Node>();
+    public List<System.Type> stateOfNode = new List<System.Type>();
+    public List<Rect> rectOfNode = new List<Rect>();
+    public List<List<Node>> connectionsOfNode = new List<List<Node>>();
+    public List<int> nodeStateIndex = new List<int>();
 
     public void Update()
     {

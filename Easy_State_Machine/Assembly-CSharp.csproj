@@ -63,6 +63,7 @@
     <Compile Include="Assets\EZStateMachine.cs" />
     <Compile Include="Assets\FavList.cs" />
     <Compile Include="Assets\FavWindow.cs" />
+    <Compile Include="Assets\Node.cs" />
     <Compile Include="Assets\SaveStateMachines.cs" />
     <Compile Include="Assets\ScriptableObjManager.cs" />
     <Compile Include="Assets\SMEditor.cs" />

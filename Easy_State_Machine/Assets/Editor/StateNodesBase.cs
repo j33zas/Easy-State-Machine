@@ -31,7 +31,6 @@ public class StateNodesBase : EditorWindow
     Vector2 screenPosPos;
 
     StateMachineScriptable _myMachine;
-    NodeObject _nodeController;
 
     [MenuItem("Unity+/EasyStateMachine/NodeEditor")]
     public static void OpenWindow(StateMachineScriptable newMachine)
@@ -39,7 +38,6 @@ public class StateNodesBase : EditorWindow
         var mySelf = GetWindow<StateNodesBase>();
 
         mySelf._myMachine = newMachine;
-        mySelf._nodeController = Resources.Load<NodeObject>("Nodes/NodeController");
 
         mySelf.graphRect = new Rect(0, toolBarHeight, 1000, 1000);
         mySelf.panRect = new Vector2(0, toolBarHeight);
@@ -56,15 +54,18 @@ public class StateNodesBase : EditorWindow
         mySelf.wrappedText.wordWrap = true;
         mySelf.Show();
 
-
-        //if (mySelf._myMachine._states.Count != 0 && mySelf._myMachine._states != null)
-        //{
-        //    //mySelf._allNodes = mySelf._myMachine._states;
-        //    for (int i = 0; i < mySelf._myMachine._states.Count; i++)
-        //    {
-        //        mySelf.CreateNode(Event.current);
-        //    }
-        //}
+        if(mySelf._myMachine.nodes.Count != 0)
+        {
+            for (int i = 0; i < mySelf._myMachine.nodes.Count; i++)
+            {
+                mySelf._allNodes = mySelf._myMachine.nodes;
+                var newNode = mySelf._myMachine.nodes[i];
+                newNode.indexTest = mySelf._myMachine.nodeStateIndex[i];
+                newNode.myRect = mySelf._myMachine.rectOfNode[i];
+                newNode.myState = mySelf._myMachine.stateOfNode[i];
+                newNode.connected = mySelf._myMachine.connectionsOfNode[i];
+            }
+        }
     }
 
     private void OnGUI()
@@ -78,6 +79,16 @@ public class StateNodesBase : EditorWindow
         Space(2);
 
         EditorGUILayout.LabelField("Right click to add a note", otherStyle);
+
+        Space(2);
+
+        EditorGUILayout.BeginHorizontal();
+        Space(1);
+        if (GUILayout.Button("Save", GUILayout.MaxWidth(400), GUILayout.MinWidth(100)))
+            SaveStateMachine();
+        Space(1);
+        EditorGUILayout.EndHorizontal();
+        Space(2);
 
         EditorGUILayout.EndVertical();
 
@@ -114,6 +125,18 @@ public class StateNodesBase : EditorWindow
         EndWindows();
 
         GUI.EndGroup();
+    }
+
+    private void SaveStateMachine()
+    {
+        _myMachine.nodes = _allNodes;
+        for (int i = 0; i < _allNodes.Count; i++)
+        {
+            _myMachine.stateOfNode.Add(_allNodes[i].myState);
+            _myMachine.rectOfNode.Add(_allNodes[i].myRect);
+            _myMachine.connectionsOfNode.Add(_allNodes[i].connected);
+            _myMachine.nodeStateIndex.Add(_allNodes[i].indexTest);
+        }
     }
 
     private void MouseInputs(Event current)
