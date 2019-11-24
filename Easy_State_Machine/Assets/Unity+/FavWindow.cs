@@ -9,7 +9,7 @@ public class FavWindow : EditorWindow
 
     Color defaultColor;
 
-    Vector2 _scrollPos = new Vector2();
+    bool showSearches = false;
 
     #region Searchbar
     string _currentsearch;
@@ -29,15 +29,11 @@ public class FavWindow : EditorWindow
     [MenuItem("Assets/Add to favourites")]
     private static void AddToFavs()
     {
-        Debug.Log("Conseguir objecto y agregar a currentList.favs");
-        
-    }
-
-    [MenuItem("Assets/Add to favourites", true)]
-    private static bool AddToFavsValidation()
-    {
-        // This returns true when the selected object is a Variable (the menu item will be disabled otherwise).
-        return Selection.activeObject is GameObject;
+        var _me = GetWindow<FavWindow>();
+        if (!_me.currentList.favs.Contains(Selection.activeObject))
+            _me.currentList.favs.Add(Selection.activeObject);
+        else
+            EditorUtility.DisplayDialog("This Object is already favourited", "You can't have 2 of the same object in your favourites", "Ok", null);
     }
 
     private void OnEnable()
@@ -47,6 +43,7 @@ public class FavWindow : EditorWindow
             currentList = (FavList)AssetDatabase.LoadAssetAtPath("Assets/Unity+/Favourites/List/Your_favourites.Asset", typeof(FavList));
         defaultColor = GUI.backgroundColor;
     }
+
     private void OnGUI()
     {
         if (AssetDatabase.FindAssets("Your_favourites").Length == 0)
@@ -62,41 +59,36 @@ public class FavWindow : EditorWindow
         if (!currentList)
             currentList = (FavList)EditorGUILayout.ObjectField(currentList, typeof(FavList), false);
 
-        //if (_searchResults.Count > 5)
-        //    _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, true, true, GUILayout.Height(100), GUILayout.Width(10));
-
-        SearchBar();
-
-        //if (_searchResults.Count > 5)
-        //    EditorGUILayout.EndScrollView();
+        EditorGUILayout.LabelField("search");
+        EditorGUILayout.BeginHorizontal();
+        _searchQuery = EditorGUILayout.TextField(_searchQuery);
+        if (GUILayout.Button("Search", GUILayout.Width(50), GUILayout.Height(18)) || Input.GetKeyDown(KeyCode.Return))
+            showSearches = true;
+        EditorGUILayout.EndHorizontal();
+        if (showSearches)
+            SearchBar();
 
         DrawFavourites();
     }
 
     void SearchBar()
     {
-        EditorGUILayout.LabelField("search");
-        EditorGUILayout.BeginHorizontal();
-        _searchQuery = EditorGUILayout.TextField(_searchQuery);
-        if (GUILayout.Button("Search", GUILayout.Width(50), GUILayout.Height(18)) || Input.GetKeyDown(KeyCode.Return))
+        _searchResults.Clear();
+        string[] paths = AssetDatabase.FindAssets(_searchQuery);
+        if(paths.Length>0)
         {
-            _searchResults.Clear();
-            string[] paths = AssetDatabase.FindAssets(_searchQuery);
-            if(paths.Length>0)
+            for (int i = 0; i < paths.Length - 1; i++)
             {
-                for (int i = 0; i < paths.Length - 1; i++)
-                {
 
-                    paths[i] = AssetDatabase.GUIDToAssetPath(paths[i]);
+                paths[i] = AssetDatabase.GUIDToAssetPath(paths[i]);
 
-                    Object _current = AssetDatabase.LoadAssetAtPath(paths[i], typeof(Object));
+                Object _current = AssetDatabase.LoadAssetAtPath(paths[i], typeof(Object));
 
-                    if (_current != null && !currentList.favs.Contains(_current))
-                        _searchResults.Add(_current);
-                }
+                if (_current != null && !currentList.favs.Contains(_current))
+                    _searchResults.Add(_current);
             }
         }
-        EditorGUILayout.EndHorizontal();
+
         if (_searchResults.Count > 0)
         {
             EditorGUI.DrawRect(new Rect() , Color.black);
@@ -110,11 +102,16 @@ public class FavWindow : EditorWindow
 
                 if (GUILayout.Button("add"))
                 {
-                    currentList.favs.Add(_searchResults[i]);
+                    if (!currentList.favs.Contains(_searchResults[i]))
+                        currentList.favs.Add(_searchResults[i]);
+                    else
+                        EditorUtility.DisplayDialog("This Object is already favourited", "You can't have 2 of the same object in your favourites", "Ok", null);
 
                     _searchResults.Remove(_searchResults[i]);
 
                     Repaint();
+
+                    showSearches = false;
                 }
                 EditorGUILayout.EndHorizontal();
             }
@@ -137,6 +134,7 @@ public class FavWindow : EditorWindow
                 {
                     currentList.favs.Remove(currentList.favs[i]);
                     Repaint();
+                    break;
                 }
                 GUILayout.Space(5);
 
@@ -149,5 +147,4 @@ public class FavWindow : EditorWindow
             }
         }
     }
-
 }
