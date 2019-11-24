@@ -27,10 +27,17 @@ public class FavWindow : EditorWindow
     }
 
     [MenuItem("Assets/Add to favourites")]
-    public static void AddToFavs()
+    private static void AddToFavs()
     {
         Debug.Log("Conseguir objecto y agregar a currentList.favs");
         
+    }
+
+    [MenuItem("Assets/Add to favourites", true)]
+    private static bool AddToFavsValidation()
+    {
+        // This returns true when the selected object is a Variable (the menu item will be disabled otherwise).
+        return Selection.activeObject is GameObject;
     }
 
     private void OnEnable()
